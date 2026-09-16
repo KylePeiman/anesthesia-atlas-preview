@@ -1,0 +1,17 @@
+import {useEffect,useRef,type ReactNode} from 'react';
+import {AlertCircle,CheckCircle2,ChevronRight,Loader2,X} from 'lucide-react';
+import {type Issue} from './types';
+import {CoverageFindings} from './review';
+export function Badge({children,tone='muted'}:{children:ReactNode;tone?:string}) {return <span className={`badge ${tone}`}>{children}</span>}
+export function Spinner({label='Loading'}:{label?:string}) {return <span className="spinner"><Loader2 size={17} className="spin"/>{label}</span>}
+export function Empty({title,detail,action}:{title:string;detail?:string;action?:ReactNode}) {return <div className="empty"><div className="empty-symbol"><CheckCircle2 size={25}/></div><h3>{title}</h3>{detail&&<p>{detail}</p>}{action}</div>}
+export function Field({label,hint,children}:{label:string;hint?:string;children:ReactNode}) {return <label className="field"><span>{label}</span>{children}{hint&&<small>{hint}</small>}</label>}
+export function Toggle({checked,onChange,label,detail}:{checked:boolean;onChange:(value:boolean)=>void;label:string;detail?:string}) {return <label className="toggle-row"><span><strong>{label}</strong>{detail&&<small>{detail}</small>}</span><input type="checkbox" checked={checked} onChange={e=>onChange(e.target.checked)}/></label>}
+export function Modal({title,subtitle,children,onClose,wide=false}:{title:string;subtitle?:string;children:ReactNode;onClose:()=>void;wide?:boolean}) {
+ const ref=useRef<HTMLDivElement>(null);useEffect(()=>{const old=document.activeElement as HTMLElement;const el=ref.current;const focus=()=>el?.querySelector<HTMLElement>('input,select,textarea,button')?.focus();focus();const listener=(e:KeyboardEvent)=>{if(e.key==='Escape')onClose();if(e.key==='Tab'&&el){const items=Array.from(el.querySelectorAll<HTMLElement>('button:not(:disabled),input:not(:disabled),select:not(:disabled),textarea:not(:disabled),a[href]'));const first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus()}}};document.addEventListener('keydown',listener);return()=>{document.removeEventListener('keydown',listener);old?.focus()};},[]);
+ return <div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)onClose()}}><div ref={ref} className={`modal ${wide?'wide':''}`} role="dialog" aria-modal="true" aria-label={title}><header className="modal-head"><div><h2>{title}</h2>{subtitle&&<p>{subtitle}</p>}</div><button className="icon-button" title="Close" aria-label="Close dialog" onClick={onClose}><X size={20}/></button></header>{children}</div></div>
+}
+export function Issues({issues,max=8}:{issues:Issue[];max?:number}) {return <CoverageFindings issues={issues} max={max}/>}
+export function SectionHead({eyebrow,title,detail,actions}:{eyebrow?:string;title:string;detail?:string;actions?:ReactNode}) {return <div className="section-head"><div>{eyebrow&&<div className="eyebrow">{eyebrow}</div>}<h1>{title}</h1>{detail&&<p>{detail}</p>}</div><div className="head-actions">{actions}</div></div>}
+export function ErrorMessage({message}:{message:string}) {return message?<div className="error-message" role="alert"><AlertCircle size={17}/><span>{message}</span></div>:null}
+export function ArrowLabel({children}:{children:ReactNode}) {return <span className="arrow-label">{children}<ChevronRight size={15}/></span>}
